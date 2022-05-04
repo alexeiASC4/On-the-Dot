@@ -23,7 +23,6 @@ class Event(db.Model):
     datetime = db.Column(db.DateTime, nullable = False)
     duration = db.Column(db.Integer, nullable = False)
     location = db.Column(db.String, nullable = False)
-    origin = db.Column(db.String, nullable = False)
     arrival = db.Column(db.Integer, nullable = False)
     users = db.relationship("User", secondary = association_table, back_populates = "events")
 
@@ -35,10 +34,7 @@ class Event(db.Model):
         self.datetime = kwargs.get("datetime", "")
         self.duration = kwargs.get("duration", "")
         self.location = kwargs.get("location", "")
-        self.origin = kwargs.get("origin", "current_location")
         self.arrival = kwargs.get("arrival", 0)
-        self.Type = kwargs.get("Type", "")
-        self.days = kwargs.get("days", "")
         self.users = []
 
     def serialize(self):
@@ -52,9 +48,7 @@ class Event(db.Model):
             "duration": self.duration,
             "location": self.location,
             "arrival": self.arrival,
-            "Type": self.Type,
-            "days": self.days,
-            "users": [u.simple_serialize() for u in self.users]
+            "users": [u.simp_serialize() for u in self.users]
         }
 
     def simp_serialize(self):
@@ -68,8 +62,6 @@ class Event(db.Model):
             "duration": self.duration,
             "location": self.location,
             "arrival": self.arrival,
-            "Type": self.Type,
-            "days": self.days
         }
 
 class User(db.Model):
@@ -98,7 +90,7 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "password": self.password,
-            "events": [e.simple_serialize() for e in self.events]
+            "events": [e.simp_serialize() for e in self.events]
         }
 
     def simp_serialize(self):

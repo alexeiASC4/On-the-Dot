@@ -1,12 +1,12 @@
 from collections import UserString
 from db import db
 from db import Event
-from db import Asset
+from db import User
 import json
 from flask import Flask
 from flask import request
 import requests
-from datetime import datetime
+from datetime import timedelta
 import os
 
 
@@ -27,6 +27,7 @@ def success_response(data, code=200):
 def failure_response(data, code=404):
     return json.dumps(data), code
 
+
 @app.route("/")
 @app.route("/api/events/")
 def get_events():
@@ -34,6 +35,7 @@ def get_events():
     Gets all events
     """
     return success_response({"events": [e.serialize() for e in Event.query.all()] })
+
 
 @app.route("/api/events/", methods = ["POST"])
 def create_event():
@@ -54,21 +56,28 @@ def create_event():
     db.session.commit()
     return success_response(new_event.serialize(), 201)
 
+
 @app.route("/api/events/<int:event_id>")
 def get_event_id(event_id):
     """
-    Gets course by id
+    Gets event by id
     """
     course = Event.query.filter_by(id = event_id).first()
     if not course:
         return failure_response({"error":"course not found"})
     return success_response(course.serialize())
 
+
 @app.route("/api/user/<int:user_id>")
-def get_events_user(user_id):
+def get_user(user_id):
     """
-    IMPLEMENT ME
+    Get user by id
     """
+    user = User.query.filter_by(id = user_id).first()
+    if not user:
+        return failure_response({"error": "user not found"})
+    return success_response(user.serialize())
+    
 
 @app.route("/api/events/<int:event_id>", methods = ["DELETE"])
 def delete_event(event_id):
@@ -82,25 +91,30 @@ def delete_event(event_id):
     db.session.commit()
     return success_response(event.serialize())
 
+
 @app.route("/api/events/<int:event_id>", methods = ["POST"])
 def get_routes(event_id):
+    """
+    Get an early arrival route
+    """
     body = json.loads(request.data)
     event = Event.query.filter_by(id = event_id).first()
     if not event:
         return failure_response("event not found")
     destination = event.get("location")
     arrival = event.get("arrival")
+    datetime = event.get("datetime")
+    tmp = datetime - \
+                timedelta(minutes = arrival)
+    arrival_time = datetime.timestamp(tmp)
     origin = body.get("origin")
-    departure_time = ""
     api = os.environ.get("APIKEY")    
-    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&mode=transit&departure_time={departure_time}&key={api}"
+    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&mode=transit&arrival_time={arrival_time}&key={api}"
     payload={}
     headers={}
     response = requests.request("GET", url, headers=headers, data=payload)
     return success_response(response.text)
-    """
-    return time you need to leave hi
-    """
+   
 """
 1. ADD AUTHENTICATION TOKEN
 2. env file (api key for google)
