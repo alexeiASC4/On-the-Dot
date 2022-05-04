@@ -23,9 +23,8 @@ class Event(db.Model):
     datetime = db.Column(db.DateTime, nullable = False)
     duration = db.Column(db.Integer, nullable = False)
     location = db.Column(db.String, nullable = False)
-    arrival = db.Column(db.Integer)
-    Type = db.Column(db.String, nullable = False) #"one-time", "recurring"
-    days = db.Column(db.String, nullable = False) #"MTWRFSZ"
+    origin = db.Column(db.String, nullable = False)
+    arrival = db.Column(db.Integer, nullable = False)
     users = db.relationship("User", secondary = association_table, back_populates = "events")
 
     def __init__(self, **kwargs):
@@ -36,7 +35,8 @@ class Event(db.Model):
         self.datetime = kwargs.get("datetime", "")
         self.duration = kwargs.get("duration", "")
         self.location = kwargs.get("location", "")
-        self.arrival = kwargs.get("arrival", "")
+        self.origin = kwargs.get("origin", "current_location")
+        self.arrival = kwargs.get("arrival", 0)
         self.Type = kwargs.get("Type", "")
         self.days = kwargs.get("days", "")
         self.users = []
@@ -110,7 +110,6 @@ class User(db.Model):
             "username": self.username,
             "password": self.password
         }
-
 
 
 

@@ -29,7 +29,7 @@ def failure_response(data, code=404):
 
 @app.route("/")
 @app.route("/api/events/")
-def get_courses():
+def get_events():
     """
     Gets all events
     """
@@ -64,6 +64,12 @@ def get_event_id(event_id):
         return failure_response({"error":"course not found"})
     return success_response(course.serialize())
 
+@app.route("/api/user/<int:user_id>")
+def get_events_user(user_id):
+    """
+    IMPLEMENT ME
+    """
+
 @app.route("/api/events/<int:event_id>", methods = ["DELETE"])
 def delete_event(event_id):
     """
@@ -71,7 +77,7 @@ def delete_event(event_id):
     """
     event = Event.query.filter_by(id = event_id).first()
     if not event:
-        return failure_response("course not found")
+        return failure_response("event not found")
     db.session.delete(event)
     db.session.commit()
     return success_response(event.serialize())
@@ -80,6 +86,8 @@ def delete_event(event_id):
 def get_routes(event_id):
     body = json.loads(request.data)
     event = Event.query.filter_by(id = event_id).first()
+    if not event:
+        return failure_response("event not found")
     destination = event.get("location")
     arrival = event.get("arrival")
     origin = body.get("origin")
@@ -90,6 +98,15 @@ def get_routes(event_id):
     headers={}
     response = requests.request("GET", url, headers=headers, data=payload)
     return success_response(response.text)
+    """
+    return time you need to leave
+    """
+"""
+1. ADD AUTHENTICATION TOKEN
+2. env file (api key for google)
+3. Postman testing
+4. notifications and make changes to db file and get routes/departure times
+"""
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
