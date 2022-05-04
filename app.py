@@ -29,43 +29,12 @@ def failure_response(data, code=404):
 
 
 @app.route("/")
-@app.route("/api/events/")
-def get_events():
+@app.route("/api/user/")
+def get_users():
     """
-    Gets all events
+    Gets all users
     """
-    return success_response({"events": [e.serialize() for e in Event.query.all()] })
-
-
-@app.route("/api/events/", methods = ["POST"])
-def create_event():
-    """
-    Create an event
-    """
-    body = json.loads(request.data)
-    name = body.get("name")
-    datetime = body.get("datetime")
-    duration = body.get("duration")
-    location = body.get("location")
-    arrival = body.get("arrival")
-    Type = body.get("Type")
-    if not name or not datetime or not duration or not location or not arrival:
-        return failure_response({"Error": "Bad Request"}, 400)
-    new_event = Event(name=name, datetime=datetime, duration=duration, location=location, arrival=arrival, Type=Type)
-    db.session.add(new_event)
-    db.session.commit()
-    return success_response(new_event.serialize(), 201)
-
-
-@app.route("/api/events/<int:event_id>")
-def get_event_id(event_id):
-    """
-    Gets event by id
-    """
-    course = Event.query.filter_by(id = event_id).first()
-    if not course:
-        return failure_response({"error":"course not found"})
-    return success_response(course.serialize())
+    return success_response({"users": [u.serialize() for u in User.query.all()] })
 
 
 @app.route("/api/user/<int:user_id>")
@@ -77,6 +46,42 @@ def get_user(user_id):
     if not user:
         return failure_response({"error": "user not found"})
     return success_response(user.serialize())
+
+    
+@app.route("/api/user/", methods = ["POST"])
+def create_user():
+    """
+    Creates a user
+    """
+    body = json.loads(request.data)
+    username = body.get("username")
+    password = body.get("password")
+    if not username or not password:
+        return failure_response({"Error": "Bad Request"}, 400)
+    new_user = User(username=username, password=password)
+    db.session.add(new_user)
+    db.session.commit()
+    return success_response(new_user.serialize(), 201)
+
+
+@app.route("/api/user/<int:user_id>", methods = ["POST"])
+def create_event(user_id):
+    """
+    Create an event for a user
+    """
+    body = json.loads(request.data)
+    name = body.get("name")
+    datetime = body.get("datetime")
+    duration = body.get("duration")
+    location = body.get("location")
+    arrival = body.get("arrival")
+    Type = body.get("Type")
+    if not name or not datetime or not duration or not location or not arrival:
+        return failure_response({"Error": "Bad Request"}, 400)
+    new_event = Event(name=name, datetime=datetime, duration=duration, location=location, arrival=arrival, users = user_id)
+    db.session.add(new_event)
+    db.session.commit()
+    return success_response(new_event.serialize(), 201)
     
 
 @app.route("/api/events/<int:event_id>", methods = ["DELETE"])
@@ -108,6 +113,8 @@ def get_routes(event_id):
                 timedelta(minutes = arrival)
     arrival_time = datetime.timestamp(tmp)
     origin = body.get("origin")
+    if not origin:
+        return failure_response({"error": "bad request"}, 400)
     api = os.environ.get("APIKEY")    
     url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&mode=transit&arrival_time={arrival_time}&key={api}"
     payload={}
