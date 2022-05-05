@@ -75,7 +75,6 @@ def create_event(user_id):
     duration = body.get("duration")
     location = body.get("location")
     arrival = body.get("arrival")
-    Type = body.get("Type")
     if not name or not datetime or not duration or not location or not arrival:
         return failure_response({"Error": "Bad Request"}, 400)
     new_event = Event(name=name, datetime=datetime, duration=duration, location=location, arrival=arrival, users = user_id)
@@ -120,7 +119,7 @@ def get_routes(event_id):
     payload={}
     headers={}
     response = requests.request("GET", url, headers=headers, data=payload)
-    return success_response(response.text)
+    return (response.text)
    
 """
 1. ADD AUTHENTICATION TOKEN
