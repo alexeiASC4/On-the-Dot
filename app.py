@@ -37,7 +37,7 @@ def get_users():
     return success_response({"users": [u.serialize() for u in User.query.all()] })
 
 
-@app.route("/api/user/<int:user_id>")
+@app.route("/api/user/<int:user_id>/")
 def get_user(user_id):
     """
     Get user by id
@@ -64,7 +64,7 @@ def create_user():
     return success_response(new_user.serialize(), 201)
 
 
-@app.route("/api/user/<int:user_id>", methods = ["POST"])
+@app.route("/api/user/<int:user_id>/", methods = ["POST"])
 def create_event(user_id):
     """
     Create an event for a user
@@ -77,13 +77,17 @@ def create_event(user_id):
     arrival = body.get("arrival")
     if not name or not datetime or not duration or not location or not arrival:
         return failure_response({"Error": "Bad Request"}, 400)
-    new_event = Event(name=name, datetime=datetime, duration=duration, location=location, arrival=arrival, users = user_id)
+    user = User.query.filter_by(id = user_id).first()
+    if not user:
+         return failure_response({"error": "user not found"})
+    new_event = Event(name=name, datetime=datetime, duration=duration, location=location, arrival=arrival, user=user_id)
+    user.events.append(new_event)
     db.session.add(new_event)
     db.session.commit()
     return success_response(new_event.serialize(), 201)
     
 
-@app.route("/api/events/<int:event_id>", methods = ["DELETE"])
+@app.route("/api/events/<int:event_id>/", methods = ["DELETE"])
 def delete_event(event_id):
     """
     delete event by id
@@ -96,7 +100,7 @@ def delete_event(event_id):
     return success_response(event.serialize())
 
 
-@app.route("/api/events/<int:event_id>", methods = ["POST"])
+@app.route("/api/events/<int:event_id>/", methods = ["POST"])
 def get_routes(event_id):
     """
     Get an early arrival route
@@ -123,7 +127,6 @@ def get_routes(event_id):
    
 """
 1. ADD AUTHENTICATION TOKEN
-2. env file (api key for google)
 3. Postman testing
 4. notifications and make changes to db file and get routes/departure times
 """

@@ -33,7 +33,7 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "password": self.password,
-            "events": [e.simp_serialize() for e in self.events]
+            "events": [e.serialize() for e in self.events]
         }
 
     def simp_serialize(self):
@@ -53,7 +53,7 @@ class Event(db.Model):
     __tablename__ = "events"
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     name = db.Column(db.String, nullable = False)
-    datetime = db.Column(db.DateTime, nullable = False)
+    datetime = db.Column(db.Integer, nullable = False)
     duration = db.Column(db.Integer, nullable = False)
     location = db.Column(db.String, nullable = False)
     arrival = db.Column(db.Integer, nullable = False)
