@@ -22,9 +22,9 @@ class User(db.Model):
     password_digest = db.Column(db.String, nullable = False)
 
     # Session information
-    session_token = db.Column(db.String, nullable=False, unique=True)
-    session_expiration = db.Column(db.DateTime, nullable=False)
-    update_token = db.Column(db.String, nullable=False, unique=True)
+    session_token = db.Column(db.String, nullable=True, unique=True)
+    session_expiration = db.Column(db.DateTime, nullable=True)
+    update_token = db.Column(db.String, nullable=True, unique=True)
 
     events = db.relationship("Event", cascade = "delete")
     
@@ -35,6 +35,7 @@ class User(db.Model):
         self.email = kwargs.get("email")
         self.password_digest = bcrypt.hashpw(kwargs.get("password").encode("utf8"), bcrypt.gensalt(rounds=13))
         self.events = []
+        self.renew_session()
     
     def serialize(self):
         """
@@ -43,6 +44,7 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
+            "session_token": self.session_token,
             "events": [e.serialize() for e in self.events]
         }
 
@@ -52,7 +54,8 @@ class User(db.Model):
         """
         return {
             "id": self.id,
-            "email": self.email
+            "email": self.email,
+            "session_token": self.session_token
         }
 
     def _urlsafe_base_64(self):

@@ -68,7 +68,7 @@ def create_user():
     """
     Endpoint for registering a new user
     """
-    body = json.loads(request.body)
+    body = json.loads(request.data)
     email = body.get("email")
     password = body.get("password")
 
@@ -79,7 +79,7 @@ def create_user():
 
     if not was_successful:
         return failure_response("User email already exists.")
-
+    
     return success_response(
         {
             "session_token": user.session_token,
@@ -108,6 +108,7 @@ def login():
 
     return success_response(
         {
+            "user_id": 1,
             "session_token": user.session_token,
             "session_expiration": str(user.session_expiration),
             "update_token": user.update_token
@@ -168,7 +169,7 @@ def create_event(user_id):
 
     if not was_successful:
         return session_token
-
+    print("Sess token " + session_token)
     user = users_dao.get_user_by_session_token(session_token)
     if not user or not user.verify_session_token(session_token):
         return failure_response("Invalid session token")
