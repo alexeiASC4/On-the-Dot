@@ -195,9 +195,14 @@ def get_time_sorted_events_by_user_id(user_id):
     """
     get all events related to a user by user id sorted by datetime of event
     """
-    user = User.query.filter_by(id = user_id).first()
-    if not user:
-        return failure_response({"error": "user not found"})
+    was_successful, session_token = extract_token(request)
+
+    if not was_successful:
+        return session_token
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+
     events = user.serialize()["events"]
     
     return success_response(sorted(events, key=lambda x: x['datetime']))
