@@ -176,14 +176,15 @@ def create_event(user_id):
 
     body = json.loads(request.data)
     name = body.get("name")
-    datetime = body.get("datetime")
+    #"Month DD YYYY H:MM[AM/PM]"
+    dt = datetime.strptime(body.get("datetime"), '%b %d %Y %I:%M%p')
     duration = body.get("duration")
     location = body.get("location")
     arrival = body.get("arrival")
-    if not name or not datetime or not duration or not location or not arrival:
+    if not name or not dt or not duration or not location or not arrival:
         return failure_response({"Error": "Bad Request"}, 400)
 
-    new_event = Event(name=name, datetime=datetime, duration=duration, location=location, arrival=arrival, user=user.id)
+    new_event = Event(name=name, datetime=dt, duration=duration, location=location, arrival=arrival, user=user.id)
     user.events.append(new_event)
     db.session.add(new_event)
     db.session.commit()
@@ -240,13 +241,15 @@ def get_routes(event_id):
     destination = event.location
     arrival = event.arrival
     datetime = event.datetime
-    tmp = datetime - \
+    tmp = datetime  - \
                 timedelta(minutes = arrival)
-    arrival_time = datetime.timestamp(tmp)
+    arrival_time = int(tmp.timestamp())
+
     origin = body.get("origin")
     if not origin:
         return failure_response({"error": "bad request"}, 400)
-    api = os.environ.get("APIKEY")    
+    api = os.environ.get("APIKEY")
+    print("APII"+ str(api) ) 
     url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&mode=transit&arrival_time={arrival_time}&key={api}"
     payload={}
     headers={}

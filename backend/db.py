@@ -99,7 +99,7 @@ class Event(db.Model):
     __tablename__ = "events"
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     name = db.Column(db.String, nullable = False)
-    datetime = db.Column(db.Integer, nullable = False)
+    datetime = db.Column(db.DateTime, nullable = False)
     duration = db.Column(db.Integer, nullable = False)
     location = db.Column(db.String, nullable = False)
     arrival = db.Column(db.Integer, nullable = False)
@@ -123,7 +123,7 @@ class Event(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "datetime": self.datetime,
+            "datetime": self.datetime.strftime("%d %b, %Y"),
             "duration": self.duration,
             "location": self.location,
             "arrival": self.arrival
