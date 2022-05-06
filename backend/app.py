@@ -204,8 +204,8 @@ def get_time_sorted_events_by_user_id(user_id):
         return failure_response("Invalid session token")
 
     events = user.serialize()["events"]
-    
-    return success_response(sorted(events, key=lambda x: x['datetime']))
+
+    return success_response(sorted(events, key=lambda x: datetime.strptime(x['datetime'], '%b %d %Y %I:%M%p')))
     
 
 @app.route("/api/events/<int:event_id>/", methods = ["DELETE"])
@@ -254,7 +254,7 @@ def get_routes(event_id):
     if not origin:
         return failure_response({"error": "bad request"}, 400)
     api = os.environ.get("APIKEY")
-    print("APII"+ str(api) ) 
+    
     url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&mode=transit&arrival_time={arrival_time}&key={api}"
     payload={}
     headers={}

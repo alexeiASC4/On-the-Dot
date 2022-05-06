@@ -123,7 +123,7 @@ class Event(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "datetime": self.datetime.strftime("%d %b, %Y"),
+            "datetime": self.datetime.strftime("%b %d %Y %I:%M%p"),
             "duration": self.duration,
             "location": self.location,
             "arrival": self.arrival
