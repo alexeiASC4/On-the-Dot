@@ -35,6 +35,7 @@ class User(db.Model):
         self.email = kwargs.get("email")
         self.password_digest = bcrypt.hashpw(kwargs.get("password").encode("utf8"), bcrypt.gensalt(rounds=13))
         self.events = []
+        
     
     def serialize(self):
         """
