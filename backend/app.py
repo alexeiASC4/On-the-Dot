@@ -68,7 +68,7 @@ def create_user():
     """
     Endpoint for registering a new user
     """
-    body = json.loads(request.body)
+    body = json.loads(request.data)
     email = body.get("email")
     password = body.get("password")
 
@@ -79,7 +79,7 @@ def create_user():
 
     if not was_successful:
         return failure_response("User email already exists.")
-
+    
     return success_response(
         {
             "session_token": user.session_token,
@@ -108,6 +108,7 @@ def login():
 
     return success_response(
         {
+            "user_id": 1,
             "session_token": user.session_token,
             "session_expiration": str(user.session_expiration),
             "update_token": user.update_token
@@ -168,7 +169,7 @@ def create_event(user_id):
 
     if not was_successful:
         return session_token
-
+    print("Sess token " + session_token)
     user = users_dao.get_user_by_session_token(session_token)
     if not user or not user.verify_session_token(session_token):
         return failure_response("Invalid session token")
@@ -187,6 +188,18 @@ def create_event(user_id):
     db.session.add(new_event)
     db.session.commit()
     return success_response(new_event.serialize(), 201)
+    
+@app.route("/api/events/<int:user_id>/")
+def get_time_sorted_events_by_user_id(user_id):
+    """
+    get all events related to a user by user id sorted by datetime of event
+    """
+    user = User.query.filter_by(id = user_id).first()
+    if not user:
+        return failure_response({"error": "user not found"})
+    events = user.serialize()["events"]
+    
+    return success_response(sorted(events, key=lambda x: x['datetime']))
     
 
 @app.route("/api/events/<int:event_id>/", methods = ["DELETE"])
@@ -215,7 +228,7 @@ def delete_event(event_id):
     return success_response(event.serialize())
 
 
-@app.route("/api/events/<int:event_id>/", methods = ["POST"])
+@app.route("/api/events/<int:event_id>/routes/", methods = ["POST"])
 def get_routes(event_id):
     """
     Get an early arrival route
@@ -224,9 +237,9 @@ def get_routes(event_id):
     event = Event.query.filter_by(id = event_id).first()
     if not event:
         return failure_response("event not found")
-    destination = event.get("location")
-    arrival = event.get("arrival")
-    datetime = event.get("datetime")
+    destination = event.location
+    arrival = event.arrival
+    datetime = event.datetime
     tmp = datetime - \
                 timedelta(minutes = arrival)
     arrival_time = datetime.timestamp(tmp)
