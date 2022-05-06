@@ -189,6 +189,18 @@ def create_event(user_id):
     db.session.commit()
     return success_response(new_event.serialize(), 201)
     
+@app.route("/api/events/<int:user_id>/")
+def get_time_sorted_events_by_user_id(user_id):
+    """
+    get all events related to a user by user id sorted by datetime of event
+    """
+    user = User.query.filter_by(id = user_id).first()
+    if not user:
+        return failure_response({"error": "user not found"})
+    events = user.serialize()["events"]
+    
+    return success_response(sorted(events, key=lambda x: x['datetime']))
+    
 
 @app.route("/api/events/<int:event_id>/", methods = ["DELETE"])
 def delete_event(event_id):
@@ -216,7 +228,7 @@ def delete_event(event_id):
     return success_response(event.serialize())
 
 
-@app.route("/api/events/<int:event_id>/", methods = ["POST"])
+@app.route("/api/events/<int:event_id>/routes/", methods = ["POST"])
 def get_routes(event_id):
     """
     Get an early arrival route
@@ -225,9 +237,9 @@ def get_routes(event_id):
     event = Event.query.filter_by(id = event_id).first()
     if not event:
         return failure_response("event not found")
-    destination = event.get("location")
-    arrival = event.get("arrival")
-    datetime = event.get("datetime")
+    destination = event.location
+    arrival = event.arrival
+    datetime = event.datetime
     tmp = datetime - \
                 timedelta(minutes = arrival)
     arrival_time = datetime.timestamp(tmp)
