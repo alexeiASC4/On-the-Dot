@@ -1,4 +1,6 @@
 # On the Dot
+App that notifies you when you need to leave be on time for the events on your schedule and how to get there
+
 ## Backend:
 - 10 routes:
     - Get Users
