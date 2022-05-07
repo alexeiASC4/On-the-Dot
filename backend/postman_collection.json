@@ -200,6 +200,96 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"ab@gmail.com\",\n    \"password\": \"password12\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server_url}}/api/users/login/",
+					"host": [
+						"{{server_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ae1a61c59a5fb0388a59906f383b7da500fad17e",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server_url}}/api/users/session/",
+					"host": [
+						"{{server_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"session",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer d431208f875362de568ebf02a17473ac305b16b0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{server_url}}/api/users/logout/",
+					"host": [
+						"{{server_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"logout",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
